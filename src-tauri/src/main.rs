@@ -1,10 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use sysinfo::{Disks, Networks, Pid, Process, System, MINIMUM_CPU_UPDATE_INTERVAL};
 use tauri::command;
-use sysinfo::{
-    Disks, Networks, Pid, Process, System, MINIMUM_CPU_UPDATE_INTERVAL,
-};
 
 #[command]
 fn get_system_info() -> serde_json::Value {
@@ -29,7 +27,7 @@ fn get_system_info() -> serde_json::Value {
 
     /* ─────────────── Memory ─────────────── */
     let total_mem: u64 = sys.total_memory();
-    let used_mem: u64  = sys.used_memory();
+    let used_mem: u64 = sys.used_memory();
     let mem_percent = if total_mem > 0 {
         (used_mem as f64 / total_mem as f64 * 100.0) as u64
     } else {
@@ -46,47 +44,54 @@ fn get_system_info() -> serde_json::Value {
 
     /* ─────────────── Disks ─────────────── */
     let disks: Disks = Disks::new_with_refreshed_list();
-    let disks_info: Vec<_> = disks.list().iter().map(|d| {
-        let total: u64 = d.total_space();
-        let avail: u64 = d.available_space();
-        let usage_percent = if total > 0 {
-            ((total - avail) as f64 / total as f64 * 100.0) as u64
-        } else {
-            0
-        };
-        // println!(
-        //     "[DEBUG] Disk {:?} usage: {}/{} ({}%)",
-        //     d.mount_point(),
-        //     total - avail,
-        //     total,
-        //     usage_percent
-        // );
-        serde_json::json!({
-            "name":   d.name().to_string_lossy(),
-            "mount_point": d.mount_point().to_string_lossy(),
-            "total_space": total,
-            "available_space": avail,
-            "usage_percent": usage_percent
+    let disks_info: Vec<_> = disks
+        .list()
+        .iter()
+        .map(|d| {
+            let total: u64 = d.total_space();
+            let avail: u64 = d.available_space();
+            let usage_percent = if total > 0 {
+                ((total - avail) as f64 / total as f64 * 100.0) as u64
+            } else {
+                0
+            };
+            // println!(
+            //     "[DEBUG] Disk {:?} usage: {}/{} ({}%)",
+            //     d.mount_point(),
+            //     total - avail,
+            //     total,
+            //     usage_percent
+            // );
+            serde_json::json!({
+                "name":   d.name().to_string_lossy(),
+                "mount_point": d.mount_point().to_string_lossy(),
+                "total_space": total,
+                "available_space": avail,
+                "usage_percent": usage_percent
+            })
         })
-    }).collect();
+        .collect();
 
     /* ─────────────── Networks ─────────────── */
     let networks: Networks = Networks::new_with_refreshed_list();
-    let networks_info: Vec<_> = networks.iter().map(|(name, data)| {
-        // println!(
-        //     "[DEBUG] Network {} - RX: {}, TX: {}",
-        //     name,
-        //     data.total_received(),
-        //     data.total_transmitted()
-        // );
-        serde_json::json!({
-            "name": name,
-            "received": data.total_received(),
-            "transmitted": data.total_transmitted(),
-            "rx_packets": data.total_packets_received(),
-            "tx_packets": data.total_packets_transmitted(),
+    let networks_info: Vec<_> = networks
+        .iter()
+        .map(|(name, data)| {
+            // println!(
+            //     "[DEBUG] Network {} - RX: {}, TX: {}",
+            //     name,
+            //     data.total_received(),
+            //     data.total_transmitted()
+            // );
+            serde_json::json!({
+                "name": name,
+                "received": data.total_received(),
+                "transmitted": data.total_transmitted(),
+                "rx_packets": data.total_packets_received(),
+                "tx_packets": data.total_packets_transmitted(),
+            })
         })
-    }).collect();
+        .collect();
 
     /* ─────────────── Processes (Top‑10 by CPU) ─────────────── */
     let mut processes: Vec<(&Pid, &Process)> = sys.processes().iter().collect();
@@ -94,21 +99,25 @@ fn get_system_info() -> serde_json::Value {
         b.1.cpu_usage().partial_cmp(&a.1.cpu_usage()).unwrap()
     });
 
-    let processes_info: Vec<_> = processes.iter().take(10).map(|(pid, p)| {
-        // println!(
-        //     "[DEBUG] Process PID={} Name={:?} CPU={:.1}%",
-        //     pid,
-        //     p.name(),
-        //     p.cpu_usage()
-        // );
-        serde_json::json!({
-            "pid": pid.to_string(),
-            "name": p.name(),
-            "cpu_usage": p.cpu_usage(),
-            "memory_usage": p.memory(),
-            "start_time": p.start_time(),
+    let processes_info: Vec<_> = processes
+        .iter()
+        .take(10)
+        .map(|(pid, p)| {
+            // println!(
+            //     "[DEBUG] Process PID={} Name={:?} CPU={:.1}%",
+            //     pid,
+            //     p.name(),
+            //     p.cpu_usage()
+            // );
+            serde_json::json!({
+                "pid": pid.to_string(),
+                "name": p.name(),
+                "cpu_usage": p.cpu_usage(),
+                "memory_usage": p.memory(),
+                "start_time": p.start_time(),
+            })
         })
-    }).collect();
+        .collect();
 
     /* ─────────────── Static system info ─────────────── */
     let system_info: serde_json::Value = serde_json::json!({
@@ -154,19 +163,22 @@ fn get_realtime_stats() -> serde_json::Value {
     let mut nets = Networks::new_with_refreshed_list();
     std::thread::sleep(std::time::Duration::from_millis(10));
     nets.refresh(true);
-    let network_info: Vec<_> = nets.iter().map(|(name, data)| {
-        // println!(
-        //     "[DEBUG] Network {} - RX: {}, TX: {}",
-        //     name,
-        //     data.received(),
-        //     data.transmitted()
-        // );
-        serde_json::json!({
-            "name": name,
-            "received": data.received(),
-            "transmitted": data.transmitted()
+    let network_info: Vec<_> = nets
+        .iter()
+        .map(|(name, data)| {
+            // println!(
+            //     "[DEBUG] Network {} - RX: {}, TX: {}",
+            //     name,
+            //     data.received(),
+            //     data.transmitted()
+            // );
+            serde_json::json!({
+                "name": name,
+                "received": data.received(),
+                "transmitted": data.transmitted()
+            })
         })
-    }).collect();
+        .collect();
 
     // 🔽 로그 출력
     // println!("[DEBUG] avg CPU usage: {:.1}%", avg_cpu);
@@ -184,7 +196,10 @@ fn get_realtime_stats() -> serde_json::Value {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_system_info, get_realtime_stats])
+        .invoke_handler(tauri::generate_handler![
+            get_system_info,
+            get_realtime_stats
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -9,37 +9,26 @@ interface RealtimeStats {
   memory_usage_percent: number;
   networks: { name: string; received: number; transmitted: number }[];
 }
-
 interface CpuMeta {
-  cpu: {
-    name: string;
-    core_count: number;
-    frequency: number;
-  };
+  cpu: { name: string; core_count: number; frequency: number };
 }
-
-const MAX_NET = 10 * 1024 * 1024; // 10 MB/s = 100 %
+const MAX_NET = 10 * 1024 * 1024;
 
 export default function Dashboard() {
   const [stats, setStats] = useState<RealtimeStats | null>(null);
   const [meta, setMeta] = useState<CpuMeta | null>(null);
   const [selected, setSelected] = useState<MetricKey | null>(null);
 
-  // 실시간 통계 주기 갱신
   useEffect(() => {
-    async function fetchStats() {
+    const id = setInterval(async () => {
       const data = await invoke<RealtimeStats>("get_realtime_stats");
       setStats(data);
-    }
-    fetchStats();
-    const id = setInterval(fetchStats, 1000);
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
-  // CPU 정적 메타 한 번 로드
   useEffect(() => {
-    if (meta) return;
-    invoke<CpuMeta>("get_system_info").then(setMeta);
+    if (!meta) invoke<CpuMeta>("get_system_info").then(setMeta);
   }, [meta]);
 
   const netRx = stats?.networks.reduce((s, n) => s + n.received, 0) ?? 0;
@@ -53,9 +42,9 @@ export default function Dashboard() {
   ];
 
   return (
-    <>
-      <Bars data={bars} onSelect={setSelected} />
+    <div className="dash-root">
+      <Bars data={bars} onSelect={setSelected} compact={!!selected} />
       {selected && <DetailPanel metric={selected} stats={stats} meta={meta} />}
-    </>
+    </div>
   );
 }

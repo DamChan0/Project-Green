@@ -3,6 +3,12 @@
   gap: 2rem;
   justify-content: center;
   margin-bottom: 2rem;
+  transition: transform 0.3s ease;
+}
+.bars-row.compact {
+  transform: scaleY(1); /* 높이를 1/4로 줄임 */
+  transform-origin: top center;
+  margin-bottom: 1rem;
 }
 .bar-wrapper {
   display: flex;
@@ -23,18 +29,22 @@
   background: #e5e7eb;
   border-radius: 0.5rem;
   overflow: hidden;
+  transition: height 0.3s ease;
+}
+.bar.compact {
+  height: 40px; /* 1/4 높이 */
 }
 .bar-fill {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #22c55e; /* 녹색 */
+  background: #22c55e;
   transition: height 0.4s ease;
 }
 .bar-percent {
   margin-top: 0.35rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 0;
   color: #065f46;
 }

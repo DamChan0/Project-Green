@@ -1,0 +1,40 @@
+.bars-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.bar-name {
+  font-size: 0.8rem;
+  color: #374151;
+  margin-bottom: 0.35rem;
+}
+.bar {
+  position: relative;
+  width: 60px;
+  height: 200px;
+  background: #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.bar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #22c55e; /* 녹색 */
+  transition: height 0.4s ease;
+}
+.bar-percent {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #065f46;
+}

@@ -1,0 +1,12 @@
+.detail {
+  background: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: 250px;
+  text-align: center;
+}
+.detail h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}

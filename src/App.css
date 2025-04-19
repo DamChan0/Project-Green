@@ -1,0 +1,13 @@
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f9fafb;
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+.title {
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  color: #1f2937;
+}
